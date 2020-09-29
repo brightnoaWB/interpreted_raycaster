@@ -279,6 +279,9 @@ def raycaster():
 
     player_pos = set_spos( grid )
 
+    draw_line = False
+    draw_fog = False
+    draw_shadow = False
 
     #Dimension of the Projection Plane
     projection_plane=[WIDTH, HEIGHT]
@@ -351,6 +354,16 @@ def raycaster():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    draw_fog = not draw_fog
+
+                if event.key == pygame.K_2:
+                    draw_shadow = not draw_shadow
+
+                if event.key == pygame.K_3:
+                    draw_line = not draw_line
 
         #Movement controls
         keys = pygame.key.get_pressed()
@@ -598,12 +611,12 @@ def raycaster():
                #shading(making shadow or fog)
                # FOG
 
-               #'''
-               alpha=int(wall_dist*0.25)
-               if alpha>255:alpha=255
-               shadow=pygame.Surface((resolution,slice_height)).convert_alpha()
-               shadow.fill((255,255,255,alpha))
-               #'''
+               # shadow = pygame.Surface((0, 0))
+               if draw_fog:
+                   alpha=int(wall_dist*0.25)
+                   if alpha>255:alpha=255
+                   shadow=pygame.Surface((resolution,slice_height)).convert_alpha()
+                   shadow.fill((255,255,255,alpha))
 
                #now floor-casting and ceilings
                cos_angle=cos(radians(ray_angle))
@@ -633,13 +646,12 @@ def raycaster():
                   # FLOOR SHADOW
                   # heavy on performance
 
-                  #'''
-                  alpha2=int(to_floor_dist*0.25)
-                  if alpha2>255:alpha=255
-                  shadow2=pygame.Surface((resolution,resolution)).convert_alpha()
-                  shadow2.fill((255,255,255,alpha2))
-                  screen.blit(shadow2,(x,wall_bottom))
-                  #'''
+                  if draw_shadow:
+                      alpha2=int(to_floor_dist*0.25)
+                      if alpha2>255:alpha=255
+                      shadow2=pygame.Surface((resolution,resolution)).convert_alpha()
+                      shadow2.fill((255,255,255,alpha2))
+                      screen.blit(shadow2,(x,wall_bottom))
 
 
                   # the floor, very janky
@@ -651,12 +663,15 @@ def raycaster():
                #drawing everything
 
                # lines can look goon in the right setting i guess
-               #pygame.draw.line(screen, WHITE, [x, slice_y], [x,slice_y+slice_height], resolution )
+               if draw_line:
+                pygame.draw.line(screen, WHITE, [x, slice_y], [x,slice_y+slice_height], resolution )
 
                #pygame.draw.rect(screen, const.CL_WHITE, [x, slice_y, resolution, slice_height], 0)#;print(x,slice_y,slice_height)
 
                screen.blit(column,(x,slice_y))
-               screen.blit(shadow,(x,slice_y))
+
+               if draw_fog:
+                screen.blit(shadow,(x,slice_y))
 
             ray_angle-=angle_increment*resolution
 

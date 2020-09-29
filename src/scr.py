@@ -31,7 +31,7 @@ def fade(sc1, sc2, sc, width, height, clock, fps):
                 sys.exit()
 
             if e.type == pygame.KEYDOWN:
-                if e.key == cont.k_use:
+                if e.key == pygame.K_RETURN:
                     return;
 
         if alpha[0]:
